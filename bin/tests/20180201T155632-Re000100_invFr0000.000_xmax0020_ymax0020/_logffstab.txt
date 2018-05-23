@@ -1,0 +1,288 @@
+-- FreeFem++ v  3.560000 (date Jeu 20 jul 2017 18:40:39 CEST)
+ Load: lg_fem lg_mesh lg_mesh3 eigenvalue 
+    1 : include "global_vars_stab.edp"// Parameters
+    2 : 
+    3 : real Re;
+    4 : real invFr;
+    5 : 
+    6 : real xmax;
+    7 : real ymax;
+    8 : 
+    9 : string dirsrc;
+   10 : string dirdat;
+   11 : string dirbase;
+   12 : string dirstab;
+   13 : string dirbaseeps;
+   14 : string dirbasegrid;
+   15 : 
+   16 : 
+   17 : 
+   18 : // Colormaps
+   19 : 
+   20 : real[int] cmap(3*16);
+   21 : real[int] kmap(3*2 );
+   22 : 
+   23 : 
+   24 : 
+   25 : // Mesh
+   26 : 
+   27 : int right  =  1;
+   28 : int left   =  2;
+   29 : int top    =  3;
+   30 : int bottom =  4;
+   31 : int aux    = 11;
+   32 : 
+   33 : mesh Th;
+   34 : mesh Th2;
+   35 : 
+   36 : 
+   37 : 
+   38 : // Variational formulations
+   39 : 
+   40 : fespace Xh(Th, P2);
+   41 : fespace Mh(Th, P1);
+   42 : 
+   43 : Xh u1b, u2b, u3b, rob;
+   44 : Mh p0b;
+   45 : 
+   46 : Xh<complex> u1p, u2p, u3p, rop;
+   47 : Mh<complex> p0p;
+   48 : 
+   49 : Xh<complex> w1, w2, w3, w4;
+   50 : Mh<complex> q0;
+   51 : 
+   52 : complex zi = 1.0i;
+   53 : 
+   54 : real kHS = 1.0e+9;
+   55 : 
+   56 : fespace Vh(Th, [P1, P2, P2, P2, P2]);
+   57 : 
+   58 : real tgv = 1.0e30;
+   59 : 
+   60 : matrix<complex> L0;
+   61 : matrix<complex> L1;
+   62 : matrix<complex> L2;
+   63 : matrix<complex> B;
+   64 : matrix<complex> B2;
+   65 : matrix<complex> Q;
+   66 : 
+   67 : 
+   68 : ;
+    2 : 
+    3 : 
+    4 : 
+    5 : include "params.edp"Re = 100;
+    2 : invFr = 0.00;
+    3 : 
+    4 : xmax = 20;
+    5 : ymax = 20;
+    6 : 
+    7 : dirsrc = "/Users/wil/Documents/Work/Projects/Stratified-Wak
+  ... : es/Stability/src/";
+    8 : dirdat = "/Users/wil/Documents/Work/Projects/Stratified-Wak
+  ... : es/Stability/dat/tests/20180201T155632-Re000100_in
+  ... : vFr0000.000_xmax0020_ymax0020/";
+    9 : 
+   10 : dirbase     = dirdat + "base/";
+   11 : dirstab     = dirdat + "stab/";
+   12 : 
+   13 : dirbaseeps  = dirbase + "eps/";
+   14 : dirbasegrid = dirbase + "grid/";
+   15 : 
+   16 : system("mkdir -p " + dirbase);
+   17 : system("mkdir -p " + dirstab);
+   18 : system("mkdir -p " + dirbaseeps);
+   19 : system("mkdir -p " + dirbasegrid);
+   20 : 
+   21 : 
+    6 : 
+    7 : 
+    8 : 
+    9 : Th  = readmesh(dirbase + "mesh0.msh");
+   10 : Th2 = readmesh(dirbase + "mesh-2.msh");
+   11 : 
+   12 : 
+   13 : 
+   14 : { ifstream file(dirbase + "p0.dat"); file >> p0b[]; }
+   15 : { ifstream file(dirbase + "u1.dat"); file >> u1b[]; }
+   16 : { ifstream file(dirbase + "u2.dat"); file >> u2b[]; }
+   17 : { ifstream file(dirbase + "u3.dat"); file >> u3b[]; }
+   18 : { ifstream file(dirbase + "ro.dat"); file >> rob[]; }
+   19 : 
+   20 : 
+   21 : 
+   22 : include "./varf_stab.edp"func real clamp(real xxx, real a, real b) { return min(b, max(a, xxx)); }
+    2 : 
+    3 : 
+    4 : 
+    5 : // Stability equations are written in the form:
+    6 : // -i w B q = (L0 + k L1 + k^2 L2) q
+    7 : // L0 -> stab0cart
+    8 : // L1 -> stab1cart
+    9 : // L2 -> stab2cart
+   10 : // B  -> masscart
+   11 : 
+   12 : 
+   13 : 
+   14 : varf stab0cart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4], init = 1) =
+   15 :       int2d(Th)(
+   16 :         - q0 * ( dx(u1p) + dy(u2p) )
+   17 :         - w3 * ( zi * u1p * dx(u3b) + zi * u2p * dy(u3b) )
+   18 :         - w4 * ( zi * u1p * dx(rob) + zi * u2p * dy(rob) )
+   19 :         - zi * dx(w1) * p0p
+   20 :         - zi * dy(w2) * p0p
+   21 :         + invFr^2 * zi * w2 * rop
+   22 :         - 1.0/Re * ( dx(w1) * dx(u1p) + dy(w1) * dy(u1p) )
+   23 :         - 1.0/Re * ( dx(w2) * dx(u2p) + dy(w2) * dy(u2p) )
+   24 :         - 1.0/Re * ( dx(w3) * dx(u3p) + dy(w3) * dy(u3p) )
+   25 :         - 1.0/Re * ( dx(w4) * dx(rop) + dy(w4) * dy(rop) )
+   26 :         );
+   27 : 
+   28 : varf stab1cart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4], init = 1) =
+   29 :       int2d(Th)(
+   30 :         - q0 * u3p
+   31 :         - w1 * zi * u3b * u1p
+   32 :         - w2 * zi * u3b * u2p
+   33 :         - w3 * zi * u3b * u3p
+   34 :         - w4 * zi * u3b * rop
+   35 :         - w3 * zi * p0p
+   36 :         );
+   37 : 
+   38 : varf stab2cart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4], init = 1) =
+   39 :       int2d(Th)(
+   40 :         - 1.0/Re * w1 * u1p
+   41 :         - 1.0/Re * w2 * u2p
+   42 :         - 1.0/Re * w3 * u3p
+   43 :         - 1.0/Re * w4 * rop
+   44 :         );
+   45 : 
+   46 : 
+   47 : 
+   48 : varf masscart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4]) =
+   49 :       int2d(Th)( w1*u1p + w2*u2p + w3*u3p + w4*rop );
+   50 : 
+   51 : 
+   52 : 
+   53 : varf forccart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4]) =
+   54 :       int2d(Th)( 1.0 * (w1*u1p + w2*u2p + w3*u3p) );
+   55 : 
+   56 : 
+   57 : 
+   58 : varf normcart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4]) =
+   59 :       int2d(Th)( w1*u1p + w2*u2p + w3*u3p );
+   60 : 
+   61 : 
+   62 : 
+   63 : varf bcvar([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4]) =
+   64 :       on(right,  u1p = 1, u2p = 1, u3p = 1, rop = 1)
+   65 :     + on(top,    u1p = 1, u2p = 1, u3p = 1, rop = 1)
+   66 :     + on(left,   u1p = 1, u2p = 1, u3p = 1, rop = 1)
+   67 :     + on(bottom, u1p = 1, u2p = 1, u3p = 1, rop = 1);
+   68 : 
+   69 : 
+   23 : 
+   24 : 
+   25 : 
+   26 : Vh [iu1, iu2, iu3, iu4, iu5] = [0, 1, 2, 3, 4];
+   27 : Vh [u1x, u2x, u3x, u4x, u5x] = [x, x, x, x, x];
+   28 : Vh [u1y, u2y, u3y, u4y, u5y] = [y, y, y, y, y];
+   29 : Vh [u1f, u2f, u3f, u4f, u5f] = [p0b, u1b, u2b, u3b, rob];
+   30 : 
+   31 : 
+   32 : 
+   33 : cout << "Constructing matrices" << endl;
+   34 : 
+   35 : L0 = stab0cart(Vh, Vh, tgv = tgv);
+   36 : L1 = stab1cart(Vh, Vh, tgv = tgv);
+   37 : L2 = stab2cart(Vh, Vh, tgv = tgv);
+   38 : B  = masscart(Vh, Vh, tgv = tgv);
+   39 : B2 = forccart(Vh, Vh, tgv = tgv);
+   40 : Q  = normcart(Vh, Vh, tgv = tgv);
+   41 : 
+   42 : 
+   43 : 
+   44 : cout << "Assembling vectors "<< endl;
+   45 : 
+   46 : // To get the points on which dirichlet BCs are applied:
+   47 : 
+   48 : real[int] bcdir(iu1[].n);
+   49 : 
+   50 : bcdir = bcvar(0,Vh);
+   51 : 
+   52 : 
+   53 : 
+   54 : // We write everything to files
+   55 : 
+   56 : cout << "Writing files"<< endl;
+   57 : 
+   58 : {
+   59 :     ofstream file(dirstab + "LNS0.dat");
+   60 : 
+   61 :     file << L0 << endl;
+   62 : }
+   63 : 
+   64 : {
+   65 :     ofstream file(dirstab + "LNS1.dat");
+   66 : 
+   67 :     file << L1 << endl;
+   68 : }
+   69 : 
+   70 : {
+   71 :     ofstream file(dirstab + "LNS2.dat");
+   72 : 
+   73 :     file << L2 << endl;
+   74 : }
+   75 : 
+   76 : {
+   77 :     ofstream file(dirstab + "B.dat");
+   78 : 
+   79 :     file << B << endl;
+   80 : }
+   81 : 
+   82 : {
+   83 :     ofstream file(dirstab + "B2.dat");
+   84 : 
+   85 :     file << B2 << endl;
+   86 : }
+   87 : 
+   88 : {
+   89 :     ofstream file(dirstab + "Q.dat");
+   90 : 
+   91 :     file << Q << endl;
+   92 : }
+   93 : 
+   94 : {
+   95 :     ofstream file(dirstab + "BC.dat");
+   96 : 
+   97 :     for (int j = 0; j < bcdir.n; j++)
+   98 :     {
+   99 :         file << bcdir[j] << endl;
+  100 :     }
+  101 : }
+  102 : 
+  103 : {
+  104 :     ofstream file(dirstab + "dofs.dat");
+  105 : 
+  106 :     for (int j = 0; j < iu1[].n; j++)
+  107 :     {
+  108 :         file << iu1[][j] << " "<< u1x[][j] << " " << u1y[][j] << endl;
+  109 :     }
+  110 : }
+  111 : 
+  112 : {
+  113 :     ofstream file(dirstab + "base.dat");
+  114 : 
+  115 :     for (int j = 0; j < iu1[].n; j++)
+  116 :     {
+  117 :         file << u1f[][j] << endl;
+  118 :     }
+  119 : }
+  120 : 
+  121 :  sizestack + 1024 =8832  ( 7808 )
+
+exec: mkdir -p /Users/wil/Documents/Work/Projects/Stratified-Wakes/Stability/dat/tests/20180201T155632-Re000100_invFr0000.000_xmax0020_ymax0020/base/
+exec: mkdir -p /Users/wil/Documents/Work/Projects/Stratified-Wakes/Stability/dat/tests/20180201T155632-Re000100_invFr0000.000_xmax0020_ymax0020/stab/
+exec: mkdir -p /Users/wil/Documents/Work/Projects/Stratified-Wakes/Stability/dat/tests/20180201T155632-Re000100_invFr0000.000_xmax0020_ymax0020/base/eps/
+exec: mkdir -p /Users/wil/Documents/Work/Projects/Stratified-Wakes/Stability/dat/tests/20180201T155632-Re000100_invFr0000.000_xmax0020_ymax0020/base/grid/
+  --  mesh:  Nb of Triangles =  18446, Nb of Vertices 9384
+  --  mesh:  Nb of Triangles =  73784, Nb of Vertices 37213

@@ -1,0 +1,130 @@
+func int WriteOnGrid(real x1G, real y1G, real x2G, real y2G, int N1x, int N1y, string sffx)
+{
+    // x1 should be smaller than x2
+    // y1 should be smaller than y2
+
+    real Dx = 1.0/N1x;
+    real Dy = 1.0/N1y;
+
+    real[int] xV = x1G : Dx : x2G;
+    real[int] yV = y1G : Dy : y2G;
+
+    int Nx = xV.n;
+    int Ny = yV.n;
+
+    real[int, int] xxG(Ny, Nx);
+    real[int, int] yyG(Ny, Nx);
+    real[int, int] p0G(Ny, Nx);
+    real[int, int] u1G(Ny, Nx);
+    real[int, int] u2G(Ny, Nx);
+    real[int, int] u3G(Ny, Nx);
+    real[int, int] roG(Ny, Nx);
+ // real[int, int] sfG(Ny, Nx);
+
+    for (int iy = 0; iy < Ny; iy++)
+    {
+        for (int ix = 0; ix < Nx; ix++)
+        {
+            xxG(iy, ix) = xV(ix);
+            yyG(iy, ix) = yV(iy);
+
+            p0G(iy, ix) = p0(xV(ix), yV(iy));
+            u1G(iy, ix) = u1(xV(ix), yV(iy));
+            u2G(iy, ix) = u2(xV(ix), yV(iy));
+            u3G(iy, ix) = u3(xV(ix), yV(iy));
+            roG(iy, ix) = ro(xV(ix), yV(iy));
+//          sfG(iy, ix) = sf(xV(ix), yV(iy));
+        }
+    }
+
+    { ofstream file(dirbasegrid + "G_xx" + sffx + ".dat"); file << xxG << endl; }
+    { ofstream file(dirbasegrid + "G_yy" + sffx + ".dat"); file << yyG << endl; }
+    { ofstream file(dirbasegrid + "G_p0" + sffx + ".dat"); file << p0G << endl; }
+    { ofstream file(dirbasegrid + "G_u1" + sffx + ".dat"); file << u1G << endl; }
+    { ofstream file(dirbasegrid + "G_u2" + sffx + ".dat"); file << u2G << endl; }
+    { ofstream file(dirbasegrid + "G_u3" + sffx + ".dat"); file << u3G << endl; }
+    { ofstream file(dirbasegrid + "G_ro" + sffx + ".dat"); file << roG << endl; }
+//  { ofstream file(dirbasegrid + "G_sf" + sffx + ".dat"); file << sfG << endl; }
+
+    exec("echo " + N1x + " >> " + dirbasegrid + "G_N1x.dat");
+    exec("echo " + N1y + " >> " + dirbasegrid + "G_N1y.dat");
+
+    return 1;
+}
+
+
+
+func int WriteOnLine(real x1L, real y1L, real x2L, real y2L, int N1L, string sffx)
+{
+    // x1 should be smaller or equal than x2
+    // y1 should be smaller or equal than y2
+
+    real DrL = 1.0/N1L;
+
+    real LxL = x2L - x1L;
+    real LyL = y2L - y1L;
+
+    real LrL = sqrt(LxL^2 + LyL^2);
+
+    real[int] rVL = 0.0 : DrL : LrL;
+
+    int NrL = rVL.n;
+
+    real DxL = (x2L - x1L)/(NrL - 1);
+    real DyL = (y2L - y1L)/(NrL - 1);
+
+    real[int] xVL = rVL;
+    real[int] yVL = rVL;
+
+    if      (DxL < 1.0e-9)
+    {
+        yVL = y1L : DyL : y2L;
+        xVL(:) = 0.0;
+    }
+    else if (DyL < 1.0e-9)
+    {
+        xVL = x1L : DxL : x2L;
+        yVL(:) = 0.0;
+    }
+    else
+    {
+        xVL = x1L : DxL : x2L;
+        yVL = y1L : DyL : y2L;
+    }
+
+    real[int, int] rrL(NrL, 1);
+    real[int, int] xxL(NrL, 1);
+    real[int, int] yyL(NrL, 1);
+    real[int, int] p0L(NrL, 1);
+    real[int, int] u1L(NrL, 1);
+    real[int, int] u2L(NrL, 1);
+    real[int, int] u3L(NrL, 1);
+    real[int, int] roL(NrL, 1);
+
+    for (int ir = 0; ir < NrL; ir++)
+    {
+        rrL(ir, 0) = rVL(ir);
+        xxL(ir, 0) = xVL(ir);
+        yyL(ir, 0) = yVL(ir);
+
+        p0L(ir, 0) = p0(xVL(ir), yVL(ir));
+        u1L(ir, 0) = u1(xVL(ir), yVL(ir));
+        u2L(ir, 0) = u2(xVL(ir), yVL(ir));
+        u3L(ir, 0) = u3(xVL(ir), yVL(ir));
+        roL(ir, 0) = ro(xVL(ir), yVL(ir));
+    }
+
+    { ofstream file(dirbasegrid + "L_rr" + sffx + ".dat"); file << rrL << endl; }
+    { ofstream file(dirbasegrid + "L_xx" + sffx + ".dat"); file << xxL << endl; }
+    { ofstream file(dirbasegrid + "L_yy" + sffx + ".dat"); file << yyL << endl; }
+    { ofstream file(dirbasegrid + "L_p0" + sffx + ".dat"); file << p0L << endl; }
+    { ofstream file(dirbasegrid + "L_u1" + sffx + ".dat"); file << u1L << endl; }
+    { ofstream file(dirbasegrid + "L_u2" + sffx + ".dat"); file << u2L << endl; }
+    { ofstream file(dirbasegrid + "L_u3" + sffx + ".dat"); file << u3L << endl; }
+    { ofstream file(dirbasegrid + "L_ro" + sffx + ".dat"); file << roL << endl; }
+
+    exec("echo " + N1L + " >> " + dirbasegrid + "L_N1.dat");
+
+    return 1;
+}
+

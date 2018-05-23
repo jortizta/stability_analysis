@@ -1,0 +1,86 @@
+//////////////////////////////////////////////////////////////////////////////////////////////96
+//// Wilfried Coenen 2018-01-31 //////////////////////////////////////////////////////////////96
+//////////////////////////////////////////////////////////////////////////////////////////////96
+
+
+
+// Load libraries, auxiliary functions, and colormaps.
+
+load "MUMPS_FreeFem";
+
+load "iovtk"
+
+include "global_vars_base.edp";
+
+include "misc.edp";
+
+include "colors.edp";
+
+cmap = CMoceanFF("curl");
+kmap = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
+
+
+// Set the parameters.
+
+include "params.edp";
+
+
+
+// Make a mesh, later we will adapt it to the solution.
+
+include "mesh.edp";
+
+Th = MakeMesh(xmax, ymax);
+
+plot(Th, wait = 0);
+
+
+
+// Construct a fake base flow.
+
+func r = x^2 + y^2;
+
+Uc   = 0.5;
+beta = 1.0;
+
+for (int kk = 1; kk <= 3; kk++)
+{
+    p0 = 0.0;
+    u1 = 0.0;
+    u2 = 0.0;
+    u3 = Uc + (1.0 - Uc) * (0.5 - 0.5*tanh(beta*(1.0/max(r, 1.0e-9) - r)));
+    ro = 1.0;
+
+    Th = adaptmesh(Th, u3, err = 0.01, ratio = 1.2, hmax = 0.5, hmin = 0.01, nbvx = 999999);
+
+    p0 = p0;
+    u1 = u1;
+    u2 = u2;
+    u3 = u3;
+    ro = ro;
+}
+
+plot(Th, wait = 1);
+plot(u3, fill = 1, value = 1, nbiso = 16, hsv = cmap, wait = 1);
+
+
+
+// Write final solution:
+
+include "write_sol.edp";
+
+//include "write_figs.edp";
+
+include "write_sol_grid.edp";
+
+WriteOnGrid(-xmax, -ymax, xmax, ymax, 4, 4, "");
+
+WriteOnLine(-xmax,   0.0, xmax,  0.0, 100, "_hor");
+
+WriteOnLine(  0.0, -ymax,  0.0, ymax, 100, "_ver");
+
+include "write_split_mesh.edp";
+
+{ ofstream file(dirbase + "success.dat"); file << 1 << endl; }
+

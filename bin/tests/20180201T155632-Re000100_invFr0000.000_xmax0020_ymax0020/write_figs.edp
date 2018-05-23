@@ -1,0 +1,6 @@
+plot(p0, cmm = "p0", ps = dirbaseeps + "p0.eps", wait = 0, value = 1, fill = 1, hsv = cmap);
+plot(u1, cmm = "u1", ps = dirbaseeps + "u1.eps", wait = 0, value = 1, fill = 1, hsv = cmap);
+plot(u2, cmm = "u2", ps = dirbaseeps + "u2.eps", wait = 0, value = 1, fill = 1, hsv = cmap);
+plot(u3, cmm = "u3", ps = dirbaseeps + "u3.eps", wait = 0, value = 1, fill = 1, hsv = cmap);
+plot(ro, cmm = "ro", ps = dirbaseeps + "ro.eps", wait = 0, value = 1, fill = 1, hsv = cmap);
+

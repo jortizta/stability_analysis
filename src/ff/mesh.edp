@@ -1,0 +1,33 @@
+func mesh MakeMesh(real xmax, real ymax)
+{
+    real lex = 2.0*ymax;
+    real ley = 2.0*xmax;
+
+    border S1(t = -1.0,  1.0){x =   xmax; y = t*ymax; label = right; };
+    border S2(t =  1.0, -1.0){x = t*xmax; y =   ymax; label = top;   };
+    border S3(t =  1.0, -1.0){x =  -xmax; y = t*ymax; label = left;  };
+    border S4(t = -1.0,  1.0){x = t*xmax; y =  -ymax; label = bottom;};
+    border A1(t = -1.0,  1.0){x = t*xmax; y =    0.0; label = aux;   };
+    border A2(t = -1.0,  1.0){x =    0.0; y = t*ymax; label = aux;   };
+
+    int ney = 4 * ley;
+    int nex = 4 * lex;
+
+    mesh Th = buildmesh( S1(ney) 
+                       + S2(nex)
+                       + S3(ney)
+                       + S4(ney)
+                       + A1(nex)
+                       + A2(nex) );
+
+    func rr = sqrt(x^2 + y^2);
+    func fadpt = min(2.0, max(0.01, 2.0*(1.0-(1.0-0.1)*exp(-log(2.0)*(rr/8.0)^2))));
+
+    for (int k = 1; k <= 3; k++)
+    {
+        Th = adaptmesh(Th, fadpt, IsMetric = 1, hmin = 0.01, hmax = 2.0, nbvx = 99999);
+    }
+
+    return Th;
+}
+

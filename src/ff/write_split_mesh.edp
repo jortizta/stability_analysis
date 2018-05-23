@@ -1,0 +1,23 @@
+Th2 = splitmesh(Th, 2);
+
+savemesh(Th2, dirbase + "mesh-2.msh");
+
+{
+    ofstream file(dirbase + "coordinates-2.dat");
+
+    for (int j = 0; j < Th2.nv; j++)
+    {
+        file << Th2(j).x << " " << Th2(j).y << endl;
+    }
+}
+
+{
+    ofstream file(dirbase + "connectivity-2.dat");
+
+    int nbtriangle = Th2.nt;
+
+    for (int i = 0; i < Th2.nt; i++)
+    {
+        file << Th2[i][0] + 1 << " " << Th2[i][1] + 1 << " " << Th2[i][2] + 1 << endl;
+    }
+}

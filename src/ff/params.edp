@@ -1,0 +1,20 @@
+Re    = xxx;
+invFr = xxx;
+
+xmax = xxx;
+ymax = xxx;
+
+dirsrc = "/Users/wil/Documents/Work/Projects/Stratified-Wakes/src/";
+dirdat = "/Users/wil/Documents/Work/Projects/Stratified-Wakes/dat/" + "test/";
+
+dirbase     = dirdat + "base/";
+dirstab     = dirdat + "stab/";
+
+dirbaseeps  = dirbase + "eps/";
+dirbasegrid = dirbase + "grid/";
+
+system("mkdir -p " + dirbase);
+system("mkdir -p " + dirstab);
+system("mkdir -p " + dirbaseeps);
+system("mkdir -p " + dirbasegrid);
+

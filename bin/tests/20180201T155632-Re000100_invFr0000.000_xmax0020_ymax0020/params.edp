@@ -1,0 +1,20 @@
+Re = 100;
+invFr = 0.00;
+
+xmax = 20;
+ymax = 20;
+
+dirsrc = "/Users/wil/Documents/Work/Projects/Stratified-Wakes/Stability/src/";
+dirdat = "/Users/wil/Documents/Work/Projects/Stratified-Wakes/Stability/dat/tests/20180201T155632-Re000100_invFr0000.000_xmax0020_ymax0020/";
+
+dirbase     = dirdat + "base/";
+dirstab     = dirdat + "stab/";
+
+dirbaseeps  = dirbase + "eps/";
+dirbasegrid = dirbase + "grid/";
+
+system("mkdir -p " + dirbase);
+system("mkdir -p " + dirstab);
+system("mkdir -p " + dirbaseeps);
+system("mkdir -p " + dirbasegrid);
+

@@ -1,0 +1,78 @@
+// Parameters for Newton-Rhapson method:
+
+errUtol      = 1.0e-4;     // Tolerance for Newton-Rhapson
+errUrelaxtol = 1.0;        // Increase step size once error falls below this value
+errUblowup   = 1.0e+6;     // If error gets bigger than this value, consider it divergence
+jNSmax       = 80;         // Maximum number of Newton-Rhapson iterations
+
+
+
+// We save the current solution for in case we need to restore because the
+// Newton-Raphson method does not converge.
+
+u1O = u1;
+u2O = u2;
+p0O = p0;
+
+
+
+// Initialize stuff.
+
+errU   = 1.0;
+jNS    = 0;
+failNS = 0;
+
+
+
+// Do the Newton-Rhapson method.
+
+while (errU > errUtol)
+{
+    jNS = jNS + 1;
+    
+    navierstokesnewton;	
+
+    if (errU > errUrelaxtol) { relax = 0.5; }
+    else                     { relax = 1.0; }
+    
+    u1[] += relax * du1[];
+    u2[] += relax * du2[];
+    p0[] += relax * dp0[];
+
+    errU = sqrt(int2d(Th)( du1^2 + du2^2) );
+
+    cout << endl; cout << endl; cout << endl;
+
+    cout << "Newton step "   << jNS         <<
+            "   (Ra = "      << Ra   << ")" <<
+            "   Error NS = " << errU        << endl;
+
+    cout << endl; cout << endl; cout << endl;
+
+    // When the method does not converge, we decrease the Rayleigh number again,
+    // and restore the old solution.
+
+    if ((jNS > jNSmax) || (errU > errUblowup))
+    {
+        Ra = Ra / (fac*fac);
+
+        u1 = u1O;
+        u2 = u2O;
+        p0 = p0O;
+
+        jFP    = jFP - 1;
+        failNS = 1;
+
+        cout << endl;
+
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+        cout << "WARNING: Newton-Rhapson did not converge, taking a step back in Ra!" << endl;
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+        cout << endl;
+
+        break;
+    }
+}
+
+

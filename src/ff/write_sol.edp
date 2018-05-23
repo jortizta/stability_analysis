@@ -1,0 +1,32 @@
+savemesh(Th, dirbase + "mesh0.msh");
+
+{ ofstream file(dirbase + "Re.dat"   );   file << Re    << endl; }
+{ ofstream file(dirbase + "invFr.dat");   file << invFr << endl; }
+{ ofstream file(dirbase + "xmax.dat" );   file << xmax  << endl; }
+{ ofstream file(dirbase + "ymax.dat" );   file << ymax  << endl; }
+
+{ ofstream file(dirbase + "p0.dat"); file << p0[] << endl; }
+{ ofstream file(dirbase + "u1.dat"); file << u1[] << endl; }
+{ ofstream file(dirbase + "u2.dat"); file << u2[] << endl; }
+{ ofstream file(dirbase + "u3.dat"); file << u3[] << endl; }
+{ ofstream file(dirbase + "ro.dat"); file << ro[] << endl; }
+
+{
+    ofstream file(dirbase + "coordinates.dat");
+
+    for (int j = 0; j < Th.nv; j++)
+    {
+        file << Th(j).x << " " << Th(j).y << endl;
+    }
+}
+{
+    ofstream file(dirbase + "connectivity.dat");
+
+    int nbtriangle = Th.nt;
+
+    for (int i = 0; i < Th.nt; i++)
+    {
+        file << Th[i][0] + 1 << " " << Th[i][1] + 1 << " " << Th[i][2] + 1 << endl;
+    }
+}
+

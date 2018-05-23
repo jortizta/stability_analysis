@@ -1,0 +1,57 @@
+cout << endl; cout << endl; cout << endl;
+
+cout << "************************************************************************" << endl;
+
+cout << endl;
+
+cout << "Fixed point iteration/continuation step " << jFP
+     << "   Ra = " << Ra << endl;
+
+cout << endl;
+
+cout << "Error Zt = " << errZt << endl;
+
+cout << endl;
+
+cout << "Inlet mean velocity = " << int1d(Th, inlt)( u1 ) << endl;
+
+cout << endl;
+
+cout << "Inlet Mass flux, Mdot = 2 int(ro v_x dy) = " << Mdot << endl;
+
+cout << endl;
+
+cout << "Flame height, Hflame = " << Hflame << endl;
+
+cout << endl;
+
+cout << "u1(0.00, 0.00) = "<< uin(0.00,0.00) << endl;
+cout << "u1(0.00, 0.50) = "<< uin(0.00,0.50) << endl;
+cout << "u1(0.00, 0.99) = "<< uin(0.00,0.99) << endl;
+
+cout << endl;
+
+cout << "Zt(0.00, 0.00) = "<< Zt(0.00,0.00) << endl;
+cout << "Zt(0.00, 0.50) = "<< Zt(0.00,0.50) << endl;
+cout << "Zt(0.00, 0.99) = "<< Zt(0.00,0.99) << endl;
+
+cout << endl;
+
+cout << "Te(0.00, 0.00) = " << Te(0.00, 0.00) << endl;
+cout << "Te(0.00, 0.99) = " << Te(0.00, 0.99) << endl;
+cout << "Te(0.00, 1.01) = " << Te(0.00, 1.01) << endl;
+cout << "Te(0.00, 1.10) = " << Te(0.00, 1.10) << endl;
+cout << "Te(0.00, 1.50) = " << Te(0.00, 1.50) << endl;
+cout << "Te(0.00, 2.00) = " << Te(0.00, 2.00) << endl;
+cout << "Te(0.00, 8.00) = " << Te(0.00, 8.00) << endl;
+
+cout << endl;
+
+cout << "************************************************************************" << endl;
+
+cout << endl; cout << endl; cout << endl;
+
+
+
+
+

@@ -1,0 +1,188 @@
+func real[int,int] Rgb2Hsv(real[int,int] & rgbmap)
+{
+    int rgbmapN = rgbmap.n;
+
+    real[int] rgbR(rgbmapN);
+    real[int] rgbG(rgbmapN);
+    real[int] rgbB(rgbmapN);
+    real[int] hsvH(rgbmapN);
+    real[int] hsvS(rgbmapN);
+    real[int] hsvV(rgbmapN);
+
+    real[int,int] hsvmap(rgbmapN,3);
+
+    real rgbCmax;
+    real rgbCmin;
+    real rgbdelta;
+
+    for(int iii = 0; iii < rgbmapN; iii++)
+    {
+        rgbR(iii) = rgbmap(iii,0);
+        rgbG(iii) = rgbmap(iii,1);
+        rgbB(iii) = rgbmap(iii,2);
+
+        rgbCmax  = max(max(rgbR(iii),rgbG(iii)),rgbB(iii));
+        rgbCmin  = min(min(rgbR(iii),rgbG(iii)),rgbB(iii));
+        rgbdelta = rgbCmax - rgbCmin;
+
+        hsvV(iii) = rgbCmax;
+
+        if (rgbCmax > 0.0)
+        {
+            hsvS(iii) = rgbdelta/rgbCmax;
+        }
+        else
+        {
+            hsvS(iii) = 0.0;
+            hsvH(iii) = 0.0;
+        }
+
+        if (rgbdelta > 0.0)
+        {
+            if        (rgbCmax == rgbR(iii))
+            {
+                hsvH(iii) = 60.0/360.0 * (rgbG(iii)-rgbB(iii))/rgbdelta;
+            }
+            else if   (rgbCmax == rgbG(iii))
+            {
+                hsvH(iii) = 60.0/360.0 * ((rgbB(iii)-rgbR(iii))/rgbdelta+2.0);
+            }
+            else if   (rgbCmax == rgbB(iii))
+            {
+                hsvH(iii) = 60.0/360.0 * ((rgbR(iii)-rgbG(iii))/rgbdelta+4.0);
+            }
+        }
+        else
+        {
+            hsvH(iii) = 0.0;
+        }
+
+        if (hsvH(iii) < 0.0)
+        {
+            hsvH(iii) = hsvH(iii) + 1.0;
+        }
+
+        hsvmap(iii,0) = hsvH(iii);
+        hsvmap(iii,1) = hsvS(iii);
+        hsvmap(iii,2) = hsvV(iii);
+    }
+
+    return hsvmap;
+}
+
+
+
+func real[int] CubeHelixFF(int  cbhlxN,
+                           real cbhlxstart,
+                           real cbhlxrots,
+                           real cbhlxsat,
+                           real cbhlxgam)
+{
+// To use, for example:
+// real[int] cmapCubeHelix = CubeHelixFF(32, 0.50, -1.50, 1.0, 1.0);
+
+    real[int,int] cbhlxmap(cbhlxN,3);
+    real[int,int] cbhlxhsv(cbhlxN,3);
+    real[int]     cbhlxhsvvec(3*cbhlxN);
+    real[int]     cbhlxvec(cbhlxN);
+    real[int]     cbhlxang(cbhlxN);
+    real[int,int] cbhlxcof(3,2);
+    int ccc;
+
+    cbhlxcof = [ [-0.14861,  1.78277],
+                 [-0.29227, -0.90649],
+                 [ 1.97294,  0.00000] ];
+
+    cbhlxvec = 0.0 : 1.0/(cbhlxN-1) : 1.0;
+
+    for(int iii = cbhlxN-1; iii >= 0; iii--)
+    {
+        cbhlxang(iii) = 2.0*pi*(cbhlxstart/3.0+1.0+cbhlxrots*cbhlxvec(iii));
+
+        for(int jjj = 0; jjj < 3; jjj++)
+        {
+            cbhlxmap(iii,jjj) = cbhlxvec(iii)^cbhlxgam + cbhlxsat*cbhlxvec(iii)^cbhlxgam
+                                *0.5*(1.0-cbhlxvec(iii)^cbhlxgam)
+                                *(cbhlxcof(jjj,0)*cos(cbhlxang(iii))
+                                + cbhlxcof(jjj,1)*sin(cbhlxang(iii)));
+        }
+    }
+
+    cbhlxhsv = Rgb2Hsv(cbhlxmap);
+
+    ccc = 0;
+
+    for(int iii = 0; iii < cbhlxN; iii++)
+    {
+        for(int jjj = 0; jjj < 3; jjj++)
+        {
+            cbhlxhsvvec(ccc) = cbhlxhsv(iii,jjj);
+            ccc = ccc+1;
+        }
+    }
+
+    return cbhlxhsvvec;
+}
+
+
+
+func real[int] BrewerFF(string mapname)
+{
+    int N = 3*16;
+    real[int] cmaphsv(N);
+
+    include "colors_brewer_16.edp";
+
+    if      (mapname == "Blues"  ) { cmaphsv = cmaphsvBlues;  }
+    else if (mapname == "BuGn"   ) { cmaphsv = cmaphsvBuGn;   }
+    else if (mapname == "BuPu"   ) { cmaphsv = cmaphsvBuPu;   }
+    else if (mapname == "GnBu"   ) { cmaphsv = cmaphsvGnBu;   }
+    else if (mapname == "Greens" ) { cmaphsv = cmaphsvGreens; }
+    else if (mapname == "Greys"  ) { cmaphsv = cmaphsvGreys;  }
+    else if (mapname == "OrRd"   ) { cmaphsv = cmaphsvOrRd;   }
+    else if (mapname == "Oranges") { cmaphsv = cmaphsvOranges;}
+    else if (mapname == "PuBu"   ) { cmaphsv = cmaphsvPuBu;   }
+    else if (mapname == "PuBuGn" ) { cmaphsv = cmaphsvPuBuGn; }
+    else if (mapname == "PuRd"   ) { cmaphsv = cmaphsvPuRd;   }
+    else if (mapname == "Purples") { cmaphsv = cmaphsvPurples;}
+    else if (mapname == "RdPu"   ) { cmaphsv = cmaphsvRdPu;   }
+    else if (mapname == "Reds"   ) { cmaphsv = cmaphsvReds;   }
+    else if (mapname == "YlGn"   ) { cmaphsv = cmaphsvYlGn;   }
+    else if (mapname == "YlGnBu" ) { cmaphsv = cmaphsvYlGnBu; }
+    else if (mapname == "YlOrBr" ) { cmaphsv = cmaphsvYlOrBr; }
+    else if (mapname == "YlOrRd" ) { cmaphsv = cmaphsvYlOrRd; }
+
+    return cmaphsv;
+}
+
+
+
+func real[int] CMoceanFF(string mapname)
+{
+    int N = 3*16;
+    real[int] cmaphsv(N);
+
+    include "colors_cmocean_16.edp";
+
+    if      (mapname == "balance") { cmaphsv = cmaphsvbalance;}
+    else if (mapname == "delta"  ) { cmaphsv = cmaphsvdelta  ;}
+    else if (mapname == "curl"   ) { cmaphsv = cmaphsvcurl   ;}
+    else if (mapname == "thermal") { cmaphsv = cmaphsvthermal;}
+    else if (mapname == "haline" ) { cmaphsv = cmaphsvhaline ;}
+    else if (mapname == "solar"  ) { cmaphsv = cmaphsvsolar  ;}
+    else if (mapname == "ice"    ) { cmaphsv = cmaphsvice    ;}
+    else if (mapname == "gray"   ) { cmaphsv = cmaphsvgray   ;}
+    else if (mapname == "oxy"    ) { cmaphsv = cmaphsvoxy    ;}
+    else if (mapname == "deep"   ) { cmaphsv = cmaphsvdeep   ;}
+    else if (mapname == "dense"  ) { cmaphsv = cmaphsvdense  ;}
+    else if (mapname == "algae"  ) { cmaphsv = cmaphsvalgae  ;}
+    else if (mapname == "matter" ) { cmaphsv = cmaphsvmatter ;}
+    else if (mapname == "turbid" ) { cmaphsv = cmaphsvturbid ;}
+    else if (mapname == "speed"  ) { cmaphsv = cmaphsvspeed  ;}
+    else if (mapname == "amp"    ) { cmaphsv = cmaphsvamp    ;}
+    else if (mapname == "tempo"  ) { cmaphsv = cmaphsvtempo  ;}
+    else if (mapname == "phase"  ) { cmaphsv = cmaphsvphase  ;}
+
+    return cmaphsv;
+}
+

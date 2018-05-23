@@ -1,0 +1,54 @@
+// Parameters
+
+real Re;
+real invFr;
+
+real xmax;
+real ymax;
+
+string dirsrc;
+string dirdat;
+string dirbase;
+string dirstab;
+string dirbaseeps;
+string dirbasegrid;
+
+
+
+// Colormaps
+
+real[int] cmap(3*16);
+real[int] kmap(3*2 );
+
+
+
+// Mesh
+
+int right  =  1;
+int left   =  2;
+int top    =  3;
+int bottom =  4;
+int aux    = 11;
+
+mesh Th;
+
+
+
+// Variational formulations
+
+fespace Vh2(Th, P2);
+fespace Vh1(Th, P1);
+
+Vh2 u1, u2, u3, ro;
+Vh1 p0;
+
+
+// Fake base flow
+
+real Uc;
+real beta;
+
+
+// Write solution
+
+mesh Th2;

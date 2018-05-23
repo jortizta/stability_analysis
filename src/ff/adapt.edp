@@ -1,0 +1,25 @@
+if ((Ra > RaFin - 1.0e-3) & (errZt < 1.0e-2) & (jFP > 0))
+{
+    erradp = 0.005;
+}
+else
+{
+    erradp = 0.02;
+}
+
+cout << "Adapting mesh to current solution with err = " << erradp << endl;
+cout << endl;
+
+Th = adaptmesh(Th, Te, Zt, xi, u1, u2,
+               err = erradp, ratio = 1.2, hmax = 4.0, hmin = 0.004, nbvx = 999999);
+u1 = u1;
+u2 = u2;
+p0 = p0;
+Zt = Zt;
+xi = xi;
+
+include "density_etc.edp";
+
+inletvelocity;
+
+cout << endl; cout << endl; cout << endl;

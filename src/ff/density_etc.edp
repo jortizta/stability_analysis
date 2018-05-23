@@ -1,0 +1,17 @@
+Zt = clamp(Zt, 0.0, 1.0);
+
+xi = clamp(xi, -100.0, qoS/(qoS+1.0-TB));
+
+Te = 1.0 - (qoS+1.0-TB) * xi + qoS * (Zt/Zts) * (Zt <= Zts) + qoS * (Zt > Zts);
+
+Te = clamp(Te, 1.0, 10.0);
+
+YF = 0.0 * (Zt < Zts) + (Zt-Zts)/(1.0-Zts) * (Zt >= Zs);
+
+YF = clamp(YF, 0.0, 1.0);
+
+ro = 1.0 / (Te * (YF * (1.0/WF - 1.0) + 1.0));
+
+mu = Te^smu; 
+rD = Te^srD;
+

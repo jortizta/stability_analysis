@@ -1,0 +1,68 @@
+func real clamp(real xxx, real a, real b) { return min(b, max(a, xxx)); }
+
+
+
+// Stability equations are written in the form:
+// -i w B q = (L0 + k L1 + k^2 L2) q
+// L0 -> stab0cart
+// L1 -> stab1cart
+// L2 -> stab2cart
+// B  -> masscart
+
+
+
+varf stab0cart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4], init = 1) =
+      int2d(Th)(
+        - q0 * ( dx(u1p) + dy(u2p) )
+        - w3 * ( zi * u1p * dx(u3b) + zi * u2p * dy(u3b) )
+        - w4 * ( zi * u1p * dx(rob) + zi * u2p * dy(rob) )
+        - zi * dx(w1) * p0p
+        - zi * dy(w2) * p0p
+        + invFr^2 * zi * w2 * rop
+        - 1.0/Re * ( dx(w1) * dx(u1p) + dy(w1) * dy(u1p) )
+        - 1.0/Re * ( dx(w2) * dx(u2p) + dy(w2) * dy(u2p) )
+        - 1.0/Re * ( dx(w3) * dx(u3p) + dy(w3) * dy(u3p) )
+        - 1.0/Re * ( dx(w4) * dx(rop) + dy(w4) * dy(rop) )
+        );
+
+varf stab1cart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4], init = 1) =
+      int2d(Th)(
+        - q0 * u3p
+        - w1 * zi * u3b * u1p
+        - w2 * zi * u3b * u2p
+        - w3 * zi * u3b * u3p
+        - w4 * zi * u3b * rop
+        - w3 * zi * p0p
+        );
+
+varf stab2cart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4], init = 1) =
+      int2d(Th)(
+        - 1.0/Re * w1 * u1p
+        - 1.0/Re * w2 * u2p
+        - 1.0/Re * w3 * u3p
+        - 1.0/Re * w4 * rop
+        );
+
+
+
+varf masscart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4]) =
+      int2d(Th)( w1*u1p + w2*u2p + w3*u3p + w4*rop );
+
+
+
+varf forccart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4]) =
+      int2d(Th)( 1.0 * (w1*u1p + w2*u2p + w3*u3p) );
+
+
+
+varf normcart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4]) =
+      int2d(Th)( w1*u1p + w2*u2p + w3*u3p );
+
+
+
+varf bcvar([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4]) =
+      on(right,  u1p = 1, u2p = 1, u3p = 1, rop = 1)
+    + on(top,    u1p = 1, u2p = 1, u3p = 1, rop = 1)
+    + on(left,   u1p = 1, u2p = 1, u3p = 1, rop = 1)
+    + on(bottom, u1p = 1, u2p = 1, u3p = 1, rop = 1);
+

@@ -1,0 +1,67 @@
+// Parameters
+
+real Re;
+real invFr;
+
+real xmax;
+real ymax;
+
+string dirsrc;
+string dirdat;
+string dirbase;
+string dirstab;
+string dirbaseeps;
+string dirbasegrid;
+
+
+
+// Colormaps
+
+real[int] cmap(3*16);
+real[int] kmap(3*2 );
+
+
+
+// Mesh
+
+int right  =  1;
+int left   =  2;
+int top    =  3;
+int bottom =  4;
+int aux    = 11;
+
+mesh Th;
+mesh Th2;
+
+
+
+// Variational formulations
+
+fespace Xh(Th, P2);
+fespace Mh(Th, P1);
+
+Xh u1b, u2b, u3b, rob;
+Mh p0b;
+
+Xh<complex> u1p, u2p, u3p, rop;
+Mh<complex> p0p;
+
+Xh<complex> w1, w2, w3, w4;
+Mh<complex> q0;
+
+complex zi = 1.0i;
+
+real kHS = 1.0e+9;
+
+fespace Vh(Th, [P1, P2, P2, P2, P2]);
+
+real tgv = 1.0e30;
+
+matrix<complex> L0;
+matrix<complex> L1;
+matrix<complex> L2;
+matrix<complex> B;
+matrix<complex> B2;
+matrix<complex> Q;
+
+

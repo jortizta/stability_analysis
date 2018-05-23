@@ -1,0 +1,35 @@
+cout << endl;
+cout << "Reading starting solution" << endl;
+cout << endl;
+
+{ ifstream file(dirss + "Ra.dat"); file >> Ra; }
+
+cout << "Ra of starting solution is " << Ra << endl;
+cout << endl;
+
+SSTh = readmesh(dirss + "mesh0.msh");
+
+{ ifstream file(dirss + "p0.dat"); file >> SSp0[]; }
+{ ifstream file(dirss + "u1.dat"); file >> SSu1[]; }
+{ ifstream file(dirss + "u2.dat"); file >> SSu2[]; }
+{ ifstream file(dirss + "xi.dat"); file >> SSxi[]; }
+{ ifstream file(dirss + "Zt.dat"); file >> SSZt[]; }
+
+for (int kk = 1; kk <= 4; kk++)
+{
+    p0 = SSp0;
+    u1 = SSu1;
+    u2 = SSu2;
+    xi = SSxi;
+    Zt = SSZt;
+
+    include "density_etc.edp";
+    
+    include "adapt.edp";
+
+    streamlines;
+
+    plot(Te, cmm = "Te", bb = [[-xoff, 0.0], [40.0, 20.0]], wait = 0,
+         fill = 1, value = 1, hsv = cmap);
+}
+

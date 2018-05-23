@@ -1,0 +1,262 @@
+func real Interp1(int Ninvec, real[int] xinvec, real[int] yinvec, real xin)
+{
+    int ii = 0;
+    real yout = 0.0;
+
+    if      (xinvec[0] < xinvec[Ninvec-1])                      // x is monotonically increasing
+    {
+        if      (xin <= xinvec[0])
+        {
+            yout = yinvec[0];
+        }
+        else if (xin >= xinvec[Ninvec-1])
+        {
+            yout = yinvec[Ninvec-1];
+        }
+        else
+        {
+            for (int i = 0; i <= Ninvec-2; i++)
+            {
+                if ((xinvec[i] <= xin) && (xin < xinvec[i+1]))
+                {
+                    ii = i;
+                }
+            }
+            yout = (xin-xinvec[ii])/(xinvec[ii+1]-xinvec[ii])*yinvec[ii+1]
+                 + (xinvec[ii+1]-xin)/(xinvec[ii+1]-xinvec[ii])*yinvec[ii];
+        }
+    }
+    else if (xinvec[Ninvec-1] < xinvec[0])                      // x is monotonically decreasing
+    {
+        if      (xin >= xinvec[0])
+        {
+            yout = yinvec[0];
+        }
+        else if (xin <= xinvec[Ninvec-1])
+        {
+            yout = yinvec[Ninvec-1];
+        }
+        else
+        {
+            for (int i = 0; i <= Ninvec-2; i++)
+            {
+                if ((xinvec[i] >= xin) && (xin > xinvec[i+1]))
+                {
+                    ii = i;
+                }
+            }
+            yout = (xin-xinvec[ii])/(xinvec[ii+1]-xinvec[ii])*yinvec[ii+1]
+                 + (xinvec[ii+1]-xin)/(xinvec[ii+1]-xinvec[ii])*yinvec[ii];
+        }
+    }
+
+    return yout;
+}
+
+
+
+func real Interp0(int Ninvec, real[int] xinvec, real[int] yinvec, real xin)
+{
+    int ii = 0;
+    real yout = 0.0;
+
+    if      (xinvec[0] < xinvec[Ninvec-1])                      // x is monotonically increasing
+    {
+        if      (xin <= xinvec[0])
+        {
+            yout = yinvec[0];
+        }
+        else if (xin >= xinvec[Ninvec-1])
+        {
+            yout = yinvec[Ninvec-1];
+        }
+        else
+        {
+            for (int i = 0; i <= Ninvec-2; i++)
+            {
+                if ((xinvec[i] <= xin) && (xin < xinvec[i+1]))
+                {
+                    if (abs(xin - xinvec[i]) < abs(xin - xinvec[i+1]))
+                    {
+                        ii = i;
+                    }
+                    else
+                    {
+                        ii = i+1;
+                    }
+                }
+            }
+            yout = yinvec[ii];
+        }
+    }
+    else if (xinvec[Ninvec-1] < xinvec[0])                      // x is monotonically decreasing
+    {
+        if      (xin >= xinvec[0])
+        {
+            yout = yinvec[0];
+        }
+        else if (xin <= xinvec[Ninvec-1])
+        {
+            yout = yinvec[Ninvec-1];
+        }
+        else
+        {
+            for (int i = 0; i <= Ninvec-2; i++)
+            {
+                if ((xinvec[i] >= xin) && (xin > xinvec[i+1]))
+                {
+                    if (abs(xin - xinvec[i]) < abs(xin - xinvec[i+1]))
+                    {
+                        ii = i;
+                    }
+                    else
+                    {
+                        ii = i+1;
+                    }
+                }
+            }
+            yout = yinvec[ii];
+        }
+    }
+
+    return yout;
+}
+
+
+
+func real Interp1Fast(int Ninvec, real[int] xinvec, real[int] yinvec, real xin)
+{
+    int ii = 0;
+    real yout = 0.0;
+    int nle = 0;
+    int nri = Ninvec-1;
+    int nmi = floor((nle + nri)/2.0+1.0e-12);
+
+    if      (xinvec[nle] < xinvec[nri])                         // x is increasing
+    {
+        if      (xin <= xinvec[nle])                            // smaller than smallest x
+        {
+            yout = yinvec[nle];
+        }
+        else if (xinvec[nri] <= xin)                            // larger than largest x
+        {
+            yout = yinvec[nri];
+        }
+        else
+        {
+            while ((nri - nle) > 1)
+            {
+                if   (xin < xinvec[nmi])
+                {
+                    nri = nmi;
+                }
+                else
+                {
+                    nle = nmi;
+                }
+                nmi = floor((nle + nri)/2.0+1.0e-12);
+            }
+            yout = (xin-xinvec[nle])/(xinvec[nri]-xinvec[nle])*yinvec[nri]
+                 + (xinvec[nri]-xin)/(xinvec[nri]-xinvec[nle])*yinvec[nle];
+        }
+    }
+    else if (xinvec[nle] > xinvec[nri])                         // x is decreasing
+    {
+        if      (xin >= xinvec[nle])                            // larger than largest x
+        {
+            yout = yinvec[nle];
+        }
+        else if (xinvec[nri] >= xin)                            // smaller than smallest x
+        {
+            yout = yinvec[nri];
+        }
+        else
+        {
+            while ((nri - nle) > 1)
+            {
+                if   (xin > xinvec[nmi])
+                {
+                    nri = nmi;
+                }
+                else
+                {
+                    nle = nmi;
+                }
+                nmi = floor((nle + nri)/2.0+1.0e-12);
+            }
+            yout = (xin-xinvec[nle])/(xinvec[nri]-xinvec[nle])*yinvec[nri]
+                 + (xinvec[nri]-xin)/(xinvec[nri]-xinvec[nle])*yinvec[nle];
+        }
+    }
+
+    return yout;
+}
+
+
+
+func string Int2Str(int intnum, int strlength)
+{
+    string leadingzeros = "";
+
+    for (int skk = strlength-1; skk > 0; skk--)
+    {
+        if (intnum > 10^skk-1) { break;                           }
+        else                   { leadingzeros = "0"+leadingzeros; }
+    }
+
+    return leadingzeros+intnum;
+}
+
+
+
+func int GetNumElemsFromFile(string filenamestr)
+{
+    int  jj    = 0;
+    int  flag  = 0;
+    real dummyvar ;
+    {
+        ifstream file(filenamestr);
+        while(flag == 0)
+        {
+            if(file.eof == 0)
+            {
+                file >> dummyvar;
+                jj += 1;
+            }
+            else
+            {
+                flag = 1;
+            }
+        }
+    }
+    return jj - 1;
+}
+
+
+
+func real[int] ReadVectorFromFile(int numlinesinfile, string filename)
+{
+    int Nin = numlinesinfile;
+    real[int] vectorin(Nin);
+    {
+        ifstream file(filename);
+        for (int ii = 0; ii < Nin; ii++)
+        {
+            file >> vectorin[ii];
+        }
+    }
+    return vectorin;
+}
+
+
+
+func real ReadScalarFromFile(string filename)
+{
+    real scalarin;
+    {
+        ifstream file(filename);
+        file >> scalarin;
+    }
+    return scalarin;
+}
+

@@ -1,0 +1,120 @@
+include "global_vars_stab.edp";
+
+
+
+include "params.edp"
+
+
+
+Th  = readmesh(dirbase + "mesh0.msh");
+Th2 = readmesh(dirbase + "mesh-2.msh");
+
+
+
+{ ifstream file(dirbase + "p0.dat"); file >> p0b[]; }
+{ ifstream file(dirbase + "u1.dat"); file >> u1b[]; }
+{ ifstream file(dirbase + "u2.dat"); file >> u2b[]; }
+{ ifstream file(dirbase + "u3.dat"); file >> u3b[]; }
+{ ifstream file(dirbase + "ro.dat"); file >> rob[]; }
+
+
+
+include "./varf_stab.edp"
+
+
+
+Vh [iu1, iu2, iu3, iu4, iu5] = [0, 1, 2, 3, 4];
+Vh [u1x, u2x, u3x, u4x, u5x] = [x, x, x, x, x];
+Vh [u1y, u2y, u3y, u4y, u5y] = [y, y, y, y, y];
+Vh [u1f, u2f, u3f, u4f, u5f] = [p0b, u1b, u2b, u3b, rob];
+
+
+
+cout << "Constructing matrices" << endl;
+
+L0 = stab0cart(Vh, Vh, tgv = tgv);
+L1 = stab1cart(Vh, Vh, tgv = tgv);
+L2 = stab2cart(Vh, Vh, tgv = tgv);
+B  = masscart(Vh, Vh, tgv = tgv);
+B2 = forccart(Vh, Vh, tgv = tgv);
+Q  = normcart(Vh, Vh, tgv = tgv);
+
+
+
+cout << "Assembling vectors "<< endl;
+
+// To get the points on which dirichlet BCs are applied:
+
+real[int] bcdir(iu1[].n);
+
+bcdir = bcvar(0,Vh);
+
+
+
+// We write everything to files
+
+cout << "Writing files"<< endl;
+
+{
+    ofstream file(dirstab + "LNS0.dat");
+
+    file << L0 << endl;
+}
+
+{
+    ofstream file(dirstab + "LNS1.dat");
+
+    file << L1 << endl;
+}
+
+{
+    ofstream file(dirstab + "LNS2.dat");
+
+    file << L2 << endl;
+}
+
+{
+    ofstream file(dirstab + "B.dat");
+
+    file << B << endl;
+}
+
+{
+    ofstream file(dirstab + "B2.dat");
+
+    file << B2 << endl;
+}
+
+{
+    ofstream file(dirstab + "Q.dat");
+
+    file << Q << endl;
+}
+
+{
+    ofstream file(dirstab + "BC.dat");
+
+    for (int j = 0; j < bcdir.n; j++)
+    {
+        file << bcdir[j] << endl;
+    }
+}
+
+{
+    ofstream file(dirstab + "dofs.dat");
+
+    for (int j = 0; j < iu1[].n; j++)
+    {
+        file << iu1[][j] << " "<< u1x[][j] << " " << u1y[][j] << endl;
+    }
+}
+
+{
+    ofstream file(dirstab + "base.dat");
+
+    for (int j = 0; j < iu1[].n; j++)
+    {
+        file << u1f[][j] << endl;
+    }
+}
+

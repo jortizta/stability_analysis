@@ -1,0 +1,89 @@
+func real clamp(real xxx, real a, real b) { return min(b, max(a, xxx)); }
+
+
+
+problem navierstokesnewton([du1, du2, dp0], [w1, w2, q]) = 
+    // F:
+    - int2d(Th)( q * (dx(u1) + dy(u2)) + q/ro * (u1 * dx(ro) + u2 * dy(ro)) )
+    + int2d(Th)( ro * w1 * (u1 * dx(u1) + u2 * dy(u1))
+               + ro * w2 * (u1 * dx(u2) + u2 * dy(u2)) )
+    - int2d(Th)( p0 * (dx(w1) + dy(w2)) )
+    + int2d(Th)( mu*Pr/Ra * ( 2.0 * dx(u1)      * dx(w1)
+                            + (dx(u2) + dy(u1)) * dy(w1)
+                            + (dx(u2) + dy(u1)) * dx(w2)
+                            + 2.0 * dy(u2)      * dy(w2) ) )
+    - int2d(Th)( Pr/Ra * (1.0 - ro) * w1 )
+    // JF:
+    - int2d(Th)( q * (dx(du1) + dy(du2)) + q/ro * (du1 * dx(ro) + du2 * dy(ro)) )
+    + int2d(Th)( ro * w1 * (du1 * dx(u1) + u1 * dx(du1) +  u2 * dy(du1) + du2 * dy( u1))
+               + ro * w2 * (du1 * dx(u2) + u1 * dx(du2) + du2 * dy( u2) +  u2 * dy(du2)) )
+    - int2d(Th)( dp0 * (dx(w1) + dy(w2)) )
+    + int2d(Th)( mu*Pr/Ra * ( 2.0 * dx(du1)       * dx(w1)
+                            + (dx(du2) + dy(du1)) * dy(w1)
+                            + (dx(du2) + dy(du1)) * dx(w2)
+                            + 2.0 * dy(du2)       * dy(w2) ) )
+    //B.C.:
+    + on(axis, du2 = 0.0-u2              )
+    + on(latl, du1 = 0.0-u1              )
+    + on(wall, du1 = 0.0-u1, du2 = 0.0-u2)
+    + on(inlt, du1 = uin-u1, du2 = 0.0-u2);
+
+
+
+macro dZdZt () ( 1.0/Le * (ZtO <= Zts) +  LeF/Le * (ZtO > Zts) ) //
+
+
+
+macro edgesmooth () ( exp(100.0 * (1.0 - y)) ) //
+
+
+
+macro xiisowall () ( (qoS+edgesmooth*(1.0-TB)) * (ZtO/Zts) / (qoS+1.0-TB) * (ZtO <= Zts)
+                   + (qoS+edgesmooth*(1.0-TB))             / (qoS+1.0-TB) * (ZtO >  Zts) ) //
+
+
+
+varf scalarslinear([xi, Zt], [w1, w2]) =
+      int2d(Th)( ro * w1 * (u1 * dx(xi) + u2 * dy(xi))
+               + ro * w2 * (u1 * dx(Zt) + u2 * dy(Zt)) * dZdZt )
+    + int2d(Th)( rD/Ra      * (dx(xi) * dx(w1) + dy(xi) * dy(w1))
+               + rD/(Ra*Le) * (dx(Zt) * dx(w2) + dy(Zt) * dy(w2)) )
+    // B.C.:
+    - int1d(Th, inlt)( LeF/Le * w2 * ro * u1 * (1.0) )
+    - int1d(Th, inlt)( LeF/Le * w2 * ro * u1 * (-Zt) );
+
+
+
+problem scalarslinearadiab([xi, Zt], [w1, w2]) =
+    scalarslinear
+    + on(inlt, xi = 1.0                )
+    + on(latl, xi = 0.0,       Zt = 0.0);
+
+
+
+problem scalarslinearisoth([xi, Zt], [w1, w2]) =
+    scalarslinear
+    + on(inlt, xi = 1.0                )
+    + on(latl, xi = 0.0,       Zt = 0.0)
+    + on(wall, xi = xiisowall          );
+
+
+
+problem inletvelocity(uin, w) =
+    int2d(Th)( w * uin ) + int2d(Th)( w * (rD/(alpha*Ra*ro) * dx(xi)) );
+
+
+
+macro sfwall () ( int1d(Th, inlt)( ro * u1 ) ) //
+
+
+
+problem streamlines(sf, w) =
+      int2d(Th)( -(dx(w)*dx(sf) + dy(w)*dy(sf)) )
+    + int2d(Th)( w * ( u2*dx(ro) + dx(u2)*ro - u1*dy(ro) - dy(u1)*ro ) )
+    + int1d(Th, outl, latl, inlt)( ro * (- u2*N.x + u1*N.y) * w )
+    + on(axis, sf = 0.0    )
+    + on(wall, sf = sfwall);
+
+
+
