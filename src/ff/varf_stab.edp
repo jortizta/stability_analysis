@@ -61,8 +61,9 @@ varf normcart([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4]) =
 
 
 varf bcvar([p0p, u1p, u2p, u3p, rop], [q0, w1, w2, w3, w4]) =
-      on(right,  u1p = 1, u2p = 1, u3p = 1, rop = 1)
-    + on(top,    u1p = 1, u2p = 1, u3p = 1, rop = 1)
-    + on(left,   u1p = 1, u2p = 1, u3p = 1, rop = 1)
-    + on(bottom, u1p = 1, u2p = 1, u3p = 1, rop = 1);
+        on(lateral, u1p=1, u2p=1, u3p=1, rop=1);
+//      on(right,  u1p = 1, u2p = 1, u3p = 1, rop = 1)
+//    + on(top,    u1p = 1, u2p = 1, u3p = 1, rop = 1)
+//   + on(left,   u1p = 1, u2p = 1, u3p = 1, rop = 1)
+//   + on(bottom, u1p = 1, u2p = 1, u3p = 1, rop = 1);
 

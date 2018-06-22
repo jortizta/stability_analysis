@@ -1,4 +1,5 @@
-pth = '/Users/wil/Documents/Work/Projects/Stratified-Wakes/dat/x/x/';
+%pth = '/Users/wil/Documents/Work/Projects/Stratified-Wakes/dat/x/x/';
+pth = '/home/jose/Desktop/Stability/dat/x/x/';
 
 analysistype = 'spectrumdirect';
 

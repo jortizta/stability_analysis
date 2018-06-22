@@ -6,9 +6,9 @@
 
 // Load libraries, auxiliary functions, and colormaps.
 
-load "MUMPS_FreeFem";
+//load "MUMPS_FreeFem";
 
-load "iovtk"
+//load "iovtk"
 
 include "global_vars_base.edp";
 
@@ -19,51 +19,117 @@ include "colors.edp";
 cmap = CMoceanFF("curl");
 kmap = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
-
-
 // Set the parameters.
 
 include "params.edp";
 
+//Th = MakeMesh(xmax, ymax);
 
 
-// Make a mesh, later we will adapt it to the solution.
+Th = readmesh(dirdns+"mesh_1.msh");
 
-include "mesh.edp";
 
-Th = MakeMesh(xmax, ymax);
+{ ifstream file(dirdns+"U0_k0838_n00030001.dat"); file >> u10[]; }
+{ ifstream file(dirdns+"V0_k0838_n00030001.dat"); file >> u20[]; }
+{ ifstream file(dirdns+"W0_k0838_n00030001.dat"); file >> u30[]; }
+{ ifstream file(dirdns+"P_k0838_n00030001.dat"); file >> p00[]; }
+{ ifstream file(dirdns+"dens_k0838_n00030001.dat"); file >> ro0[]; }
 
-plot(Th, wait = 0);
 
+plot(u10, fill = 1, value = 1, nbiso = 16, hsv = cmap, wait = 1,ps="u1r.eps");
+plot(u20, fill = 1, value = 1, nbiso = 16, hsv = cmap, wait = 1,ps="u2th.eps");
+
+
+// Transform to cartesian
+
+real xbc,ybc,r,th;
+
+//cout << "Th.nt" << Th.nt << endl;
+
+for (int i=0;i<Th.nt;i++) {
+
+xbc=1.0/3.0*(Th[i][0].x + Th[i][1].x + Th[i][2].x); 
+ybc=1.0/3.0*(Th[i][0].y + Th[i][1].y + Th[i][2].y);
+
+r = sqrt(xbc^2+ybc^2);
+th = atan(ybc/xbc);
+
+u10[][i] = u10[][i]*cos(th) - r*u20[][i]*sin(th); 
+u20[][i] = u10[][i]*sin(th) + r*u20[][i]*cos(th);
+
+}
+
+//plot(u10, fill = 1, value = 1, nbiso = 16, hsv = cmap, wait = 1,ps="u1x.eps");
+//plot(u20, fill = 1, value = 1, nbiso = 16, hsv = cmap, wait = 1,ps="u2y.eps");
+
+
+
+
+//cout << "xbc" << xbc << "ybc" << ybc << endl;
+//cout << i << " " << j << " Th[i][j] = "
+//<< Th[i][j] << " x = "<< Th[i][j].x << " , y= "<< Th[i][j].y
+//<< ", label=" << Th[i][j].label << endl;
 
 
 // Construct a fake base flow.
 
-func r = x^2 + y^2;
+// func r = x^2 + y^2;
+//
+// Uc   = 0.5;
+// beta = 1.0;
+//
+// for (int kk = 1; kk <= 3; kk++)
+// {
+//     p0 = 0.0;
+//     u1 = 0.0;
+//     u2 = 0.0;
+//     u3 = Uc + (1.0 - Uc) * (0.5 - 0.5*tanh(beta*(1.0/max(r, 1.0e-9) - r)));
+//     ro = 1.0;
+//
+//     Th = adaptmesh(Th, u3, err = 0.01, ratio = 1.2, hmax = 0.5, hmin = 0.01, nbvx = 999999);
+//
+//     p0 = p0;
+//     u1 = u1;
+//     u2 = u2;
+//     u3 = u3;
+//     ro = ro;
+// }
+//
 
-Uc   = 0.5;
-beta = 1.0;
 
-for (int kk = 1; kk <= 3; kk++)
-{
-    p0 = 0.0;
-    u1 = 0.0;
-    u2 = 0.0;
-    u3 = Uc + (1.0 - Uc) * (0.5 - 0.5*tanh(beta*(1.0/max(r, 1.0e-9) - r)));
-    ro = 1.0;
+// Converting P0 elements into P1 and P2
 
-    Th = adaptmesh(Th, u3, err = 0.01, ratio = 1.2, hmax = 0.5, hmin = 0.01, nbvx = 999999);
+//fespace Vh2(Th,P2);
+//fespace Vh1(Th,P1);
 
-    p0 = p0;
-    u1 = u1;
-    u2 = u2;
-    u3 = u3;
-    ro = ro;
-}
+//Vh2 u1,u2,u3,ro;
+//Vh1 p0;
 
-plot(Th, wait = 1);
-plot(u3, fill = 1, value = 1, nbiso = 16, hsv = cmap, wait = 1);
+p0 = p00;
+u1 = u10;
+u2 = u20;
+u3 = u30;
+ro = ro0;
 
+
+
+Th = adaptmesh(Th, u3, err = 0.01, ratio = 1.2, hmax = 0.5, hmin = 0.01, nbvx = 999999);
+
+p0 = p0;
+u1 = u1;
+u2 = u2;
+u3 = u3;
+ro = ro;
+
+
+
+//plot(Th, wait = 1);
+//plot(u1, fill = 1, value = 1, nbiso = 16, hsv = cmap, wait = 1);
+//plot(u2, fill = 1, value = 1, nbiso = 16, hsv = cmap, wait = 1);
+//plot(u3, fill = 1, value = 1, nbiso = 16, hsv = cmap, wait = 1);
+//plot(u30, fill = 1, value = 1, nbiso = 16, hsv = cmap, wait = 1);
+//plot(p0, fill = 1, value = 1, nbiso = 16, hsv = cmap, wait = 1);
+//plot(ro, fill = 1, value = 1, nbiso = 16, hsv = cmap, wait = 1);
 
 
 // Write final solution:
@@ -83,4 +149,3 @@ WriteOnLine(  0.0, -ymax,  0.0, ymax, 100, "_ver");
 include "write_split_mesh.edp";
 
 { ofstream file(dirbase + "success.dat"); file << 1 << endl; }
-

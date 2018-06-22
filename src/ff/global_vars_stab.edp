@@ -10,6 +10,7 @@ string dirsrc;
 string dirdat;
 string dirbase;
 string dirstab;
+string dirdns;
 string dirbaseeps;
 string dirbasegrid;
 
@@ -24,11 +25,7 @@ real[int] kmap(3*2 );
 
 // Mesh
 
-int right  =  1;
-int left   =  2;
-int top    =  3;
-int bottom =  4;
-int aux    = 11;
+int lateral=1;
 
 mesh Th;
 mesh Th2;
@@ -39,6 +36,7 @@ mesh Th2;
 
 fespace Xh(Th, P2);
 fespace Mh(Th, P1);
+
 
 Xh u1b, u2b, u3b, rob;
 Mh p0b;

@@ -11,14 +11,20 @@
 
 source ./compute_case.sh
 
-
-
-GROUP='tests'
+GROUP='test_kmax'
 SUFFX=''
-XMAX='20'
-YMAX='20'
+XMAX='5'
+YMAX='5'
 
-RE='100'
-INVFR='0.00'
+RE='10000'
+INVFR='1'
+
+
+
+DIRWIL='/Users/wil/Documents/Work/Projects/Stratified-Wakes/Stability/'
+DIRJOSE_ws='/home/jose/Desktop/Stability/'
+DIRJOSE_mb='/Users/Jose/Desktop/Stability/'
+
 compute_case
 
+#sh compute_case.sh

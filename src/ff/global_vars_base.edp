@@ -8,6 +8,7 @@ real ymax;
 
 string dirsrc;
 string dirdat;
+string dirdns;
 string dirbase;
 string dirstab;
 string dirbaseeps;
@@ -24,17 +25,21 @@ real[int] kmap(3*2 );
 
 // Mesh
 
-int right  =  1;
-int left   =  2;
-int top    =  3;
-int bottom =  4;
-int aux    = 11;
+int lateral = 1;
+//int right  =  1;
+//int left   =  2;
+//int top    =  3;
+//int bottom =  4;
+//int aux    = 11;
 
 mesh Th;
 
 
 
 // Variational formulations
+
+fespace Vh(Th,P0);
+Vh u10, u20, u30, ro0, p00;
 
 fespace Vh2(Th, P2);
 fespace Vh1(Th, P1);

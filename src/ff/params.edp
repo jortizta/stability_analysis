@@ -1,11 +1,16 @@
-Re    = xxx;
-invFr = xxx;
+Re    = 10000;
+invFr = 1;
 
-xmax = xxx;
-ymax = xxx;
+xmax = 5;
+ymax = 5;
 
-dirsrc = "/Users/wil/Documents/Work/Projects/Stratified-Wakes/src/";
-dirdat = "/Users/wil/Documents/Work/Projects/Stratified-Wakes/dat/" + "test/";
+//dirsrc = "/Users/Jose/Desktop/Stability/src/";
+//dirdat = "/Users/Jose/Desktop/Stability/dat/" + "test/";
+//dirdns = "/Users/Jose/Desktop/Stability/dat/dns/";
+
+dirsrc = "/home/jose/Desktop/Stability/src/";
+dirdat = "/home/jose/Desktop/Stability/dat/" + "test/";
+dirdns = "/home/jose/Desktop/Stability/dat/dns/";
 
 dirbase     = dirdat + "base/";
 dirstab     = dirdat + "stab/";
